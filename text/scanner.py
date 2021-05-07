@@ -152,5 +152,7 @@ class Scanner:
             
             else:
                 Error(f"illegal character: '{self.current}'.", pos=self.pos.copy())
+            
+        result.append(Token(Token.TOKT_EOF, self.pos.copy()))
 
         return result

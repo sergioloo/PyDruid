@@ -9,9 +9,10 @@ package com.github.sergiolabora.hello;
 
 
 HelloWorld :: public class {
-	main :: public static int ( ) {
+/*	main :: public static int ( ) {
 		// Console.println("Hello, world!");
 		return 0;
 	}
+*/
 }
 

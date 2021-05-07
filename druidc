@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from text   import Scanner
+from syntax import Parser
 from sys    import argv
 from utils  import Error
 
@@ -14,6 +15,9 @@ def tokenize(files):
     
     return toks
 
+def parse(toks):
+    return Parser("test", toks).parse()
+
 
 def main(args):
     print("\x1b[1;32m·: \x1b[37mDruid \x1b[mCompiler \x1b[1;32m:· \x1b[m")
@@ -24,7 +28,9 @@ def main(args):
     if option == 'compile':
         if len(args) < 3: Error("the 'compile' option must take at least one input file.")
         toks = tokenize(args[2:])
-        # TODO. Crear un AST
+        ast = parse(toks)
+
+        print(ast)
         
 
 if __name__ == '__main__':
