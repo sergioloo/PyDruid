@@ -1,7 +1,11 @@
 class Token:
     TOKT_PACKAGE    = 'package'
+    TOKT_CLASS      = 'class'
     TOKT_PUBLIC     = 'public'
+    TOKT_PROTECTED  = 'protected'
+    TOKT_PRIVATE    = 'private'
     TOKT_STATIC     = 'static'
+    TOKT_FINAL      = 'final'
     TOKT_RETURN     = 'return'
     TOKT_ID         = 'identifier'
     TOKT_DOT        = 'dot'

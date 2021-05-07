@@ -33,6 +33,17 @@ class Parser:
             if not self.current: Error(f"expecting {expected} and got nothing.")
             Error(f"expecting {expected} and got {self.current.type}.", tok=self.current)
 
+    def __get_visibility(self):
+        if self.current and self.current.type in (Token.TOKT_PUBLIC, Token.TOKT_PROTECTED, Token.TOKT_PRIVATE):
+            type_ = self.current.type
+
+            if   type_ == Token.TOKT_PUBLIC:    return ContextNode.CNVB_PUBLIC
+            elif type_ == Token.TOKT_PROTECTED: return ContextNode.CNVB_PROTECTED
+            elif type_ == Token.TOKT_PRIVATE:   return ContextNode.CNVB_PRIVATE
+
+            self.__advance()
+        
+        return ContextNode.CNVB_PROTECTED
     
     # Métodos de nodos
     def __id(self, ctx):
@@ -54,7 +65,28 @@ class Parser:
         return node
     
     def __class(self, ctx):
-        pass
+        id_ = self.__id(ctx)
+        
+        self.__expect([Token.TOKT_DEF])
+        self.__advance()
+
+        visibility = self.__get_visibility()
+        
+        self.__expect([Token.TOKT_CLASS])
+        self.__advance()
+
+        inner_ctx = ContextNode(id_, )
+
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+
+        node = Node(Node.NT_CLASS, ctx)
+        node.register(Node.NR_ID, id_)
+
+        return node
     
     def __package(self, ctx):
         self.__expect([Token.TOKT_PACKAGE])
@@ -78,7 +110,9 @@ class Parser:
         # Crear un contexto interno
         inner_ctx = ContextNode(pkg_name, ContextNode.CNT_PKG, parent=ctx)
 
-
+        while self.current and self.current.type != Token.TOKT_RCBRACK:
+            # TODO. registrar funciones
+            self.__advance()
         
         self.__expect([Token.TOKT_EOF])
         

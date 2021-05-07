@@ -44,8 +44,12 @@ class Scanner:
         end     = self.pos.copy()
 
         if      value == 'public':      return Token(Token.TOKT_PUBLIC,     start, end)
+        elif    value == 'protected':   return Token(Token.TOKT_PROTECTED,  start, end)
+        elif    value == 'private':     return Token(Token.TOKT_PRIVATE,    start, end)
         elif    value == 'package':     return Token(Token.TOKT_PACKAGE,    start, end)
+        elif    value == 'class':       return Token(Token.TOKT_CLASS,      start, end)
         elif    value == 'static':      return Token(Token.TOKT_STATIC,     start, end)
+        elif    value == 'final':       return Token(Token.TOKT_FINAL,      start, end)
         elif    value == 'return':      return Token(Token.TOKT_RETURN,     start, end)
         return                                 Token(Token.TOKT_ID,         start, end, value)
     

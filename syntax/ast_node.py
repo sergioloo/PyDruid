@@ -5,6 +5,7 @@ class Node:
     # Debería llamarse ASTNode, pero es más difícil de escribir
     NT_AST          = 'abstract syntax tree'
     NT_PKG          = 'package'
+    NT_CLASS        = 'class'
     NT_ID           = 'identifier'
 
     NR_ID           = 'identifier'
