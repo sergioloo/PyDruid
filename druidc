@@ -16,7 +16,7 @@ def tokenize(files):
     return toks
 
 def parse(toks):
-    return Parser("test", toks).parse()
+    return Parser(toks).parse()
 
 
 def main(args):
