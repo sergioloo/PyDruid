@@ -1,8 +1,12 @@
-![pydruid logo](assets/pdlogo.svg)
+<div style={text_align: center;}>
+    <img src="assets/pdlogo.svg" title="PyDruid logo">
+</div>
+
+
 # The PyDruid compiler
 
 <div style={text_align: center;}>
-<img src="assets/terminal.png">
+    <img src="assets/terminal.png">
 </div>
 
 PyDruid is the first ever Druid compiler that I wrote. It's basically meant to compile the actual Druid compiler in written in Druid, which is compiled to machine code rather than being a bunch of Python scripts.
