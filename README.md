@@ -1,4 +1,5 @@
-# ![pydruid logo](assets/pdlogo.svg) PyDruid
+![pydruid logo](assets/pdlogo.svg)
+# The PyDruid compiler
 
 <div style={text_align: center;}>
 <img src="assets/terminal.png">
