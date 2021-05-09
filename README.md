@@ -1,12 +1,12 @@
-<div style={text_align: center;}>
-    <img src="assets/pdlogo.svg" title="PyDruid logo">
+<div style="text-align: center">
+    <img src="assets/pdlogo.svg" title="Druid" width=70%>
 </div>
 
 
 # The PyDruid compiler
 
-<div style={text_align: center;}>
-    <img src="assets/terminal.png">
+<div style="text-align:center">
+    <img src="assets/terminal.png", title="Druid Example" width=90%>
 </div>
 
 PyDruid is the first ever Druid compiler that I wrote. It's basically meant to compile the actual Druid compiler in written in Druid, which is compiled to machine code rather than being a bunch of Python scripts.
