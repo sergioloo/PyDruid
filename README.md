@@ -1,11 +1,11 @@
-<div style="text-align: center">
+<div align="center">
     <img src="assets/pdlogo.svg" title="Druid" width=70%>
 </div>
 
 
 # The PyDruid compiler
 
-<div style="text-align:center">
+<div align="center">
     <img src="assets/terminal.png", title="Druid Example" width=90%>
 </div>
 
