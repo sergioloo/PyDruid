@@ -1,9 +1,14 @@
 #! /usr/bin/env python3
 
-from text   import Scanner
-from syntax import Parser
-from sys    import argv
-from utils  import Error
+import getpass
+import json
+import os
+
+from datetime   import datetime
+from text       import Scanner
+from syntax     import Parser
+from sys        import argv
+from utils      import Error
 
 
 def tokenize(files):
@@ -18,6 +23,39 @@ def tokenize(files):
 def parse(toks):
     return Parser(toks).parse()
 
+def init(proj_name: str):
+    fld_name = proj_name.lower()
+    user_name = getpass.getuser().lower()
+
+    # Crear una carpeta
+    try:    os.mkdir(fld_name)
+    except: Error("couldn't create the project folder. check permissions.")
+    
+    # Crear los archivos
+    proj_idx = None
+
+    with open('patterns/project.json', 'r') as proj_idx_f:
+        proj_idx = json.load(proj_idx_f)
+        proj_idx["name"] = proj_name
+        proj_idx["author"] = user_name
+
+    with open(f'{fld_name}/project.json', 'w') as proj_idx_f:
+        json.dump(proj_idx, proj_idx_f)
+
+    main_c = ''
+
+    with open('patterns/main.druid', 'r') as main_f:
+        main_c = main_f.read()
+    
+    main_c = main_c.replace("{user}", user_name)
+    main_c = main_c.replace("{proj_name}", proj_name)
+    main_c = main_c.replace("{pkg_name}", proj_name.lower())
+    main_c = main_c.replace("{today}", datetime.now().strftime('%d/%m/%y'))
+
+    with open(f'{fld_name}/main.druid', 'w') as main_f:
+        main_f.write(main_c)
+
+    print("\x1b[1m· \x1b[m project \x1b[1;32msuccesfully \x1b[minitialized.")
 
 def main(args):
     print("\x1b[1;32m·: \x1b[37mDruid \x1b[mCompiler \x1b[1;32m:· \x1b[m")
@@ -31,6 +69,10 @@ def main(args):
         ast = parse(toks)
 
         print(ast)
+
+    elif option == 'init':
+        if len(args) < 3: Error("the 'init' option must take a project name.")
+        init(args[2])
         
 
 if __name__ == '__main__':

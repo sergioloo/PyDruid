@@ -1,0 +1,15 @@
+{
+    "name":     "proj_name",
+    "author":   "author_name",
+
+    "files": [
+        "main.druid"
+    ],
+
+    "include":  [
+        "stdio",
+        "stdlib",
+        "stdbool",
+        "string"
+    ]
+}
