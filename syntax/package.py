@@ -5,7 +5,11 @@ class Package:
         self.methods    = []
     
     def __repr__(self):
-        return f"[Package {self.id}]"
+        return f"""
+        [Package {self.id}
+            Classes: {self.classes}
+        ]
+"""
 
     def add_class(self, class_):
         self.classes.append(class_)

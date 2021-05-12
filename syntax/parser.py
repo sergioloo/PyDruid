@@ -1,7 +1,9 @@
-from .package   import Package
-from .project   import Project
-from text       import Token
-from utils      import Error
+from .class_        import Class
+from .initializer   import Initializer
+from .package       import Package
+from .project       import Project
+from text           import Token
+from utils          import Error
 
 
 class Parser:
@@ -17,7 +19,7 @@ class Parser:
         self.current = self.toks[self.index] if self.index < len(self.toks) else None
 
     def __expect(self, types):
-        if not self.current or self.current.type in types:
+        if not self.current or self.current.type not in types:
             expected = types[0]
 
             for i, t in enumerate(types):
@@ -59,12 +61,64 @@ class Parser:
 
         pkg = Package(id_)
 
-        
+        while self.current and self.current.type != Token.TOKT_EOF:
+            init = self.__initializer()
+
+            if init.type == Initializer.ST_CLASS: pkg.add_class(self.__class(init))
 
         self.__expect([Token.TOKT_EOF])
         self.__advance()
 
         return pkg
+    
+    def __class(self, init):
+        class_ = Class(init)
+
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+
+        return class_
+
+    def __initializer(self):
+        id_ = self.__get_id()
+
+        self.__expect([Token.TOKT_DEF])
+        self.__advance()
+
+        vb = Initializer.VB_PROTECTED
+
+        if self.current and self.current.type in (Token.TOKT_PUBLIC, Token.TOKT_PROTECTED, Token.TOKT_PRIVATE):
+            if      self.current.type == Token.TOKT_PUBLIC:     vb = Initializer.VB_PUBLIC
+            elif    self.current.type == Token.TOKT_PROTECTED:  vb = Initializer.VB_PROTECTED
+            elif    self.current.type == Token.TOKT_PRIVATE:    vb = Initializer.VB_PRIVATE
+
+            self.__advance()
+        
+        static = False
+        
+        if self.current and self.current.type == Token.TOKT_STATIC:
+            static = True
+            self.__advance()
+        
+        final = False
+        if self.current and self.current.type == Token.TOKT_FINAL:
+            final = True
+
+        type_ = None
+
+        self.__expect([Token.TOKT_CLASS, Token.TOKT_ID])
+
+        if self.current.type == Token.TOKT_ID:
+            type_ = self.__get_id()
+
+        elif self.current.type == Token.TOKT_CLASS:  
+            type_ = Initializer.ST_CLASS
+            self.__advance()
+        
+        return Initializer(id_, vb, static, final, type_)
 
     def parse(self):
         proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk

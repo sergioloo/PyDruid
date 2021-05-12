@@ -31,7 +31,7 @@ class Error:
         print(f"\x1b[1m[ \x1b[m{moment} \x1b[1;31merror \x1b[37m]: \x1b[m{self.description}")
 
         if self.position:
-            print(f"\x1b[1mat \x1b[m{self.position.filename} {self.position.line}:{self.position.column}")
+            print(f"\x1b[1mlocated at \x1b[m{self.position.filename} {self.position.line}:{self.position.column}")
             line = self.position.file.split('\n')[self.position.line].replace('\t', '')
 
             print(f"\t{line}")
@@ -43,7 +43,7 @@ class Error:
 
             length  = end.column - start.column
 
-            print(f"\x1b[1mat \x1b[m{start.filename} {start.line}:{start.column}")
+            print(f"\x1b[1mlocated at \x1b[m{start.filename} {start.line}:{start.column}")
             line = start.file.split('\n')[start.line].replace('\t', '')
 
             print(f"\t{line}")
