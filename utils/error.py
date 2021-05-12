@@ -41,7 +41,7 @@ class Error:
             start   = self.token.start
             end     = self.token.end
 
-            length  = end.column - start.column
+            length  = end.column - start.column if start.index != end.index else 1
 
             print(f"\x1b[1mlocated at \x1b[m{start.filename} {start.line}:{start.column}")
             line = start.file.split('\n')[start.line].replace('\t', '')
