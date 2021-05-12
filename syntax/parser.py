@@ -1,5 +1,7 @@
+from .argument      import Argument
 from .class_        import Class
 from .initializer   import Initializer
+from .method        import Method
 from .package       import Package
 from .project       import Project
 from text           import Token
@@ -50,6 +52,27 @@ class Parser:
         
         return result
     
+    def __get_args(self):
+        args = []
+
+        self.__expect([Token.TOKT_LPAREN])
+        self.__advance()
+
+        while self.current and self.current.type != Token.TOKT_RPAREN:
+            id_ = self.__get_id()
+
+            self.__expect([Token.TOKT_DEF])
+            self.__advance()
+
+            type_ = self.__get_id()
+
+            args.append(Argument(id_, type_))
+
+        self.__expect([Token.TOKT_RPAREN])
+        self.__advance()
+
+        return args
+
     def __package(self):
         self.__expect([Token.TOKT_PACKAGE])
         self.__advance()
@@ -65,6 +88,10 @@ class Parser:
             init = self.__initializer()
 
             if init.type == Initializer.ST_CLASS: pkg.add_class(self.__class(init))
+            else:
+                if self.current and self.current.type == Token.TOKT_LPAREN:
+                    args = self.__get_args()
+                    pkg.add_method(self.__method(init, args))
 
         self.__expect([Token.TOKT_EOF])
         self.__advance()
@@ -81,6 +108,17 @@ class Parser:
         self.__advance()
 
         return class_
+
+    def __method(self, init, args):
+        mthd = Method(init, init.type, args) # TODO: Ese None sustituye a args
+
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+
+        return mthd
 
     def __initializer(self):
         id_ = self.__get_id()

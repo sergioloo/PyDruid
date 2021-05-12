@@ -1,6 +1,3 @@
-from syntax import package
-
-
 class Project:
     def __init__(self, id_):
         self.id         = id_

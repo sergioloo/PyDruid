@@ -7,7 +7,8 @@
 
 package com.github.sergiolabora.hello;
 
+main :: public static int () {
+}
 
 HelloWorld :: public class {
 }
-

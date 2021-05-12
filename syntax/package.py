@@ -7,7 +7,8 @@ class Package:
     def __repr__(self):
         return f"""
         [Package {self.id}
-            Classes: {self.classes}
+            Classes: {self.classes},
+            Methods: {self.methods}
         ]
 """
 
