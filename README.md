@@ -2,7 +2,6 @@
     <img src="assets/pdlogo.svg" title="Druid" width=70%>
 </div>
 
-
 # The PyDruid compiler
 
 <div align="center">
@@ -10,6 +9,9 @@
 </div>
 
 PyDruid is the first ever Druid compiler that I wrote. It's basically meant to compile the actual Druid compiler in written in Druid, which is compiled to machine code rather than being a bunch of Python scripts.
+
+## ![](assets/warning.svg) __Warning__
+This repository is still under development and __won't__ work in any way.
 
 ## ![](assets/worm.svg) What's Druid?
 Druid is a strong-typed object-oriented programming language. It's a mix of my favourite features of my favourite programming languages (Python, Java, C, etc...) that compiles into C to be later compiled to machine code.
