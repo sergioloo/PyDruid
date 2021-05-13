@@ -2,6 +2,13 @@
     <img src="assets/pdlogo.svg" title="Druid" width=70%>
 </div>
 
+<div align="center">
+    <img src="https://img.shields.io/github/last-commit/sergiolabora/PyDruid?label=Last%20Commit"/>
+    <img src="https://img.shields.io/github/downloads/sergiolabora/PyDruid/total?label=Downloads" />
+    <img src="https://img.shields.io/github/languages/code-size/sergiolabora/PyDruid?label=Code%20Size" />
+    <img src="https://img.shields.io/github/stars/sergiolabora/PyDruid?label=Stars&logo=github" />
+</div>
+
 # The PyDruid compiler
 
 <div align="center">
