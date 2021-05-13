@@ -68,7 +68,7 @@ def main(args):
         toks = tokenize(args[2:])
         ast = parse(toks)
 
-        print(ast)
+        print(ast.scope)
 
     elif option == 'init':
         if len(args) < 3: Error("the 'init' option must take a project name.")

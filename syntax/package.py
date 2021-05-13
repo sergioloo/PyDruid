@@ -1,9 +1,14 @@
-class Package:
-    def __init__(self, id_):
+from .container     import Container
+
+
+class Package(Container):
+    def __init__(self, id_, parent):
+        super().__init__(id_, parent)
+
         self.id         = id_
         self.classes    = []
         self.methods    = []
-    
+
     def __repr__(self):
         return f"""
         [Package {self.id}
@@ -11,9 +16,3 @@ class Package:
             Methods: {self.methods}
         ]
 """
-
-    def add_class(self, class_):
-        self.classes.append(class_)
-    
-    def add_method(self, method):
-        self.methods.append(method)

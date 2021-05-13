@@ -1,5 +1,6 @@
 from .argument      import Argument
 from .class_        import Class
+from .container     import Container
 from .initializer   import Initializer
 from .method        import Method
 from .package       import Package

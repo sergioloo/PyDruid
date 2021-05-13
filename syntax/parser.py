@@ -72,8 +72,17 @@ class Parser:
         self.__advance()
 
         return args
+    
+    def __fill_container(self, container):
+        init = self.__initializer()
 
-    def __package(self):
+        if init.type == Initializer.ST_CLASS: container.add_class(self.__class(init, container))
+        else:
+            if self.current and self.current.type == Token.TOKT_LPAREN:
+                args = self.__get_args()
+                container.add_method(self.__method(init, args, container))
+
+    def __package(self, container):
         self.__expect([Token.TOKT_PACKAGE])
         self.__advance()
 
@@ -82,35 +91,32 @@ class Parser:
         self.__expect([Token.TOKT_SEMICOLON])
         self.__advance()
 
-        pkg = Package(id_)
+        pkg = Package(id_, container)
 
         while self.current and self.current.type != Token.TOKT_EOF:
-            init = self.__initializer()
-
-            if init.type == Initializer.ST_CLASS: pkg.add_class(self.__class(init))
-            else:
-                if self.current and self.current.type == Token.TOKT_LPAREN:
-                    args = self.__get_args()
-                    pkg.add_method(self.__method(init, args))
+            self.__fill_container(pkg)
 
         self.__expect([Token.TOKT_EOF])
         self.__advance()
 
         return pkg
     
-    def __class(self, init):
-        class_ = Class(init)
+    def __class(self, init, parent):
+        class_ = Class(init, parent)
 
         self.__expect([Token.TOKT_LCBRACK])
         self.__advance()
+
+        while self.current and self.current.type != Token.TOKT_RCBRACK:
+            self.__fill_container(class_)
 
         self.__expect([Token.TOKT_RCBRACK])
         self.__advance()
 
         return class_
 
-    def __method(self, init, args):
-        mthd = Method(init, init.type, args) # TODO: Ese None sustituye a args
+    def __method(self, init, args, container):
+        mthd = Method(init, init.type, args, container) # TODO: Ese None sustituye a args
 
         self.__expect([Token.TOKT_LCBRACK])
         self.__advance()
@@ -162,6 +168,6 @@ class Parser:
         proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk
 
         while self.current:
-            proj.add_package(self.__package())
+            proj.add_package(self.__package(proj))
 
         return proj
