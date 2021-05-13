@@ -30,7 +30,7 @@ $ ./druidc compile example.druid
 Of course, you need to change ```example.druid``` by all your files. All the dependencies __must__ be satisfied, because the compiler will crash with an error if any dependency is broken, so __make sure__ you import __all__ the required Druid files.
 
 ## ![](assets/worm.svg) Other options
-The compiler can do more things, such as initializing projects, for example. It basically does everything that the actual Druid compiler does, so if you want to get a list with all the available options, just use the option ```help```.
+The compiler can do more things, such as initializing projects, for example. It basically does everything that the actual Druid compiler does, so if you want to get a list with all the available options, just use the option ```help``` or check the [options.md](docs/options.md) file.
 
 ## ![](assets/worm.svg) License
 This software is released under the CC BY-NC-SA license, which allows you to modify and share my work, as long as you give attribution to me and don't earn any money from this work. However, if you made a program using Druid, you're free to do whatever you want with your program.
