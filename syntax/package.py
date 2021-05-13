@@ -16,3 +16,10 @@ class Package(Container):
             Methods: {self.methods}
         ]
 """
+    
+    def to_c(self):
+        result = f'// package {self.id}\n\n'
+        for class_ in self.classes:
+            result += class_.to_c()
+
+        return result

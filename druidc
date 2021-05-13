@@ -1,10 +1,12 @@
 #! /usr/bin/env python3
 
+from compiler import Compiler
 import getpass
 import json
 import os
 
 from datetime   import datetime
+from transpiler import Transpiler
 from text       import Scanner
 from syntax     import Parser
 from sys        import argv
@@ -22,6 +24,34 @@ def tokenize(files):
 
 def parse(toks):
     return Parser(toks).parse()
+
+def transpile(ast):
+    return Transpiler(ast, "kk").transpile() # TODO: el proyecto sigue sin llamarse 'kk'
+
+def compile_proj(name):
+    if not os.path.isdir(name):                     Error("couldn't open the project folder.")
+    if not os.path.isfile(f'{name}/project.json'):  Error("couldn't open the project index file.")
+
+    # Cargar el índice
+    with open(f'{name}/project.json', 'r') as proj_idx_f:
+        proj_idx = json.load(proj_idx_f)
+    
+    # Obtener el código fuente
+    if not proj_idx.get('files'): Error("field 'files' missing in 'project.json'.")
+
+    files = []
+
+    for f in proj_idx['files']:
+        fn = f'{name}/{f}'
+        if not os.path.isfile(fn): Error(f"couldn't open the source file: '{f}'.")
+        files.append(fn)
+    
+    # Compilar
+    toks    = tokenize(files)
+    ast     = parse(toks)
+    sc      = Transpiler(ast, "kk").transpile()
+
+    Compiler(name, sc).compile(clean=False)
 
 def init(proj_name: str):
     fld_name = proj_name.lower()
@@ -64,11 +94,9 @@ def main(args):
     option = args[1]
 
     if option == 'compile':
-        if len(args) < 3: Error("the 'compile' option must take at least one input file.")
-        toks = tokenize(args[2:])
-        ast = parse(toks)
-
-        print(ast.scope)
+        if len(args) != 3: Error("the 'compile' option must take an input project.")
+        name = args[2]
+        compile_proj(name)
 
     elif option == 'init':
         if len(args) < 3: Error("the 'init' option must take a project name.")

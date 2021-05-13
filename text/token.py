@@ -18,6 +18,11 @@ class Token:
     TOKT_INT        = 'integer'
     TOKT_FLOAT      = 'float'
     TOKT_STRING     = 'string'
+    TOKT_PLUS       = 'plus'
+    TOKT_MINUS      = 'minus'
+    TOKT_MULT       = 'multiplication'
+    TOKT_DIV        = 'division'
+    TOKT_POW        = 'power'
     TOKT_EOF        = 'end of file'
 
     def __init__(self, type_, start, end=None, value=None):

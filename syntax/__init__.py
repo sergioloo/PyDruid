@@ -2,6 +2,7 @@ from .argument          import Argument
 from .block             import Block
 from .class_            import Class
 from .container         import Container
+from .factor            import Factor
 from .initializer       import Initializer
 from .method            import Method
 from .package           import Package

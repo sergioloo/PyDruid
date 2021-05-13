@@ -1,15 +1,21 @@
 {
-    "name":     "proj_name",
-    "author":   "author_name",
+    "name":         "proj_name",
+    "author":       "author_name",
+
+    "compiler":     "gcc",
+    "output_file":  "proj_name",
+    "flags":        "",
+
+    "com":          "{compiler} {dsrc} -o {output_file} {flags}",
 
     "files": [
         "main.druid"
     ],
 
     "include":  [
-        "stdio",
-        "stdlib",
-        "stdbool",
-        "string"
+        "stdio.h",
+        "stdlib.h",
+        "stdbool.h",
+        "string.h"
     ]
 }

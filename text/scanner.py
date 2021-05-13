@@ -125,6 +125,22 @@ class Scanner:
                 result.append(Token(Token.TOKT_RPAREN, self.pos.copy()))
                 self.__advance()
             
+            elif self.current == '+':
+                result.append(Token(Token.TOKT_PLUS, self.pos.copy()))
+                self.__advance()
+            
+            elif self.current == '-':
+                result.append(Token(Token.TOKT_MINUS, self.pos.copy()))
+                self.__advance()
+            
+            elif self.current == '*':
+                result.append(Token(Token.TOKT_MULT, self.pos.copy()))
+                self.__advance()
+
+            elif self.current == '^':
+                result.append(Token(Token.TOKT_POW, self.pos.copy()))
+                self.__advance()
+            
             elif self.current == ':':
                 start = self.pos.copy()
                 self.__advance()
@@ -141,6 +157,7 @@ class Scanner:
             elif self.current == '"':               result.append(self.__on_string())
             
             elif self.current == '/':
+                pos = self.pos.copy()
                 self.__advance()
 
                 if self.current == '/':
@@ -149,6 +166,8 @@ class Scanner:
                 
                 elif self.current == '*':
                     self.__on_multiple_line_comment()
+                
+                else: result.append(Token(Token.TOKT_DIV, pos))
             
             else:
                 Error(f"illegal character: '{self.current}'.", pos=self.pos.copy())

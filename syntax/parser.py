@@ -1,6 +1,8 @@
 from .argument          import Argument
+from .bin_op            import BinOp
 from .block             import Block
 from .class_            import Class
+from .factor            import Factor
 from .initializer       import Initializer
 from .method            import Method
 from .package           import Package
@@ -84,8 +86,8 @@ class Parser:
                 args = self.__get_args()
                 container.add_method(self.__method(init, args, container))
     
-    def __get_block(self, scope):
-        blk = Block(scope)
+    def __get_block(self):
+        blk = Block()
 
         self.__expect([Token.TOKT_LCBRACK])
         self.__advance()
@@ -134,7 +136,8 @@ class Parser:
     def __method(self, init, args, container):
         mthd = Method(init, init.type, args, container) # TODO: Ese None sustituye a args
 
-        blk = self.__get_block(mthd.scope)
+        blk = self.__get_block()
+        mthd.set_block(blk)
 
         return mthd
 
@@ -182,15 +185,56 @@ class Parser:
         self.__expect([Token.TOKT_RETURN])
         self.__advance()
 
-        val = self.current  # TODO: Debe coger un valor, no un token
-        self.__advance()
+        val = self.__expression()
 
         ret.set_return_value(val)
 
         self.__expect([Token.TOKT_SEMICOLON])
         self.__advance()
 
-        return ret        
+        return ret
+
+    def __term(self):
+        left = self.__factor()
+
+        while self.current and self.current.type in (Token.TOKT_MULT, Token.TOKT_DIV, Token.TOKT_POW):
+            op = None
+
+            if   self.current.type == Token.TOKT_MULT: op = BinOp.OP_MULT
+            elif self.current.type == Token.TOKT_DIV:  op = BinOp.OP_DIV
+            elif self.current.type == Token.TOKT_POW:  op = BinOp.OP_POW
+
+            self.__advance()
+
+            right = self.__term()
+
+            old_left = left
+            left = BinOp(old_left, op, right)
+        
+        return left
+    
+    def __expression(self):
+        left = self.__term()
+
+        while self.current and self.current.type in (Token.TOKT_PLUS, Token.TOKT_MINUS):
+            op = None
+
+            if   self.current.type == Token.TOKT_PLUS:  op = BinOp.OP_ADDITION
+            elif self.current.type == Token.TOKT_MINUS: op = BinOp.OP_SUBT
+
+            right = self.__expression()
+
+            old_left = left
+            left = BinOp(old_left, op, right)
+        
+        return left
+    
+    def __factor(self):
+        self.__expect([Token.TOKT_INT, Token.TOKT_FLOAT])
+        tok = self.current
+        self.__advance()
+
+        return Factor(tok.value)
 
     def parse(self):
         proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk
