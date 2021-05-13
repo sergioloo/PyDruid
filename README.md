@@ -4,9 +4,10 @@
 
 <div align="center">
     <img src="https://img.shields.io/github/last-commit/sergiolabora/PyDruid?label=Last%20Commit"/>
+    <img src="https://img.shields.io/github/commit-activity/m/sergiolabora/PyDruid?label=Activity" />
     <img src="https://img.shields.io/github/downloads/sergiolabora/PyDruid/total?label=Downloads" />
-    <img src="https://img.shields.io/github/languages/code-size/sergiolabora/PyDruid?label=Code%20Size" />
     <img src="https://img.shields.io/github/stars/sergiolabora/PyDruid?label=Stars&logo=github" />
+    <img src="https://img.shields.io/github/languages/code-size/sergiolabora/PyDruid?label=Code%20Size" />
 </div>
 
 # The PyDruid compiler
