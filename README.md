@@ -41,7 +41,7 @@ Of course, you need to change ```example.druid``` by all your files. All the dep
 The compiler can do more things, such as initializing projects, for example. It basically does everything that the actual Druid compiler does, so if you want to get a list with all the available options, just use the option ```help``` or check the [options.md](docs/options.md) file.
 
 ## ![](assets/worm.svg) License
-This software is released under the CC BY-NC-SA license, which allows you to modify and share my work, as long as you give attribution to me and don't earn any money from this work. However, if you made a program using Druid, you're free to do whatever you want with your program.
+This software is released under the CC BY-NC-SA license, which allows you to modify and share my work, as long as you give attribution to me and don't earn any money from this work. However, if you made a program using Druid, you're free to do whatever you want with your program. If you want to read the license, check the [LICENSE.md](LICENSE.md) file.
 
 <div align="center">
     <img src="assets/by-nc-sa.svg" width=30% title="CC BY-NC-SA" href="https://creativecommons.org/licenses/by-nc-sa/3.0/es/" title="View CC BY-NC-SA license on creativecommons.org">
