@@ -13,6 +13,24 @@ from sys        import argv
 from utils      import Error
 
 
+"""
+The PyDruid Compiler
+https://github.com/sergiolabora/PyDruid
+====================
+Author: Sergio Labora (@sergiolabora)
+
+PyDruid is a compiler for the Druid programming language, written only using Python in
+order to compile the actual Druid compiler on nearly any platform (x86, ARM, and other
+operating systems like Haiku OS).
+
+PyDruid is released under the CC BY-NC-SA license, so feel free to do whatever you want
+with this code as long as you follow the license conditions.
+
+If you want to contribute... well, feel free to ask me, but is most probable I'm not letting
+you modify Druid or any related project.
+"""
+
+
 def tokenize(files):
     toks = []
 
@@ -49,6 +67,7 @@ def compile_proj(name):
     # Compilar
     toks    = tokenize(files)
     ast     = parse(toks)
+
     sc      = Transpiler(ast, "kk").transpile()
 
     Compiler(name, sc).compile(clean=False)
