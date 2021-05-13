@@ -1,11 +1,13 @@
-from .argument      import Argument
-from .class_        import Class
-from .initializer   import Initializer
-from .method        import Method
-from .package       import Package
-from .project       import Project
-from text           import Token
-from utils          import Error
+from .argument          import Argument
+from .block             import Block
+from .class_            import Class
+from .initializer       import Initializer
+from .method            import Method
+from .package           import Package
+from .project           import Project
+from .return_statement  import ReturnStatement
+from text               import Token
+from utils              import Error
 
 
 class Parser:
@@ -81,6 +83,20 @@ class Parser:
             if self.current and self.current.type == Token.TOKT_LPAREN:
                 args = self.__get_args()
                 container.add_method(self.__method(init, args, container))
+    
+    def __get_block(self, scope):
+        blk = Block(scope)
+
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        while self.current and self.current.type != Token.TOKT_RCBRACK:
+            if self.current and self.current.type == Token.TOKT_RETURN: blk.add_statement(self.__return());
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+
+        return blk
 
     def __package(self, container):
         self.__expect([Token.TOKT_PACKAGE])
@@ -118,11 +134,7 @@ class Parser:
     def __method(self, init, args, container):
         mthd = Method(init, init.type, args, container) # TODO: Ese None sustituye a args
 
-        self.__expect([Token.TOKT_LCBRACK])
-        self.__advance()
-
-        self.__expect([Token.TOKT_RCBRACK])
-        self.__advance()
+        blk = self.__get_block(mthd.scope)
 
         return mthd
 
@@ -163,6 +175,22 @@ class Parser:
             self.__advance()
         
         return Initializer(id_, vb, static, final, type_)
+    
+    def __return(self):
+        ret = ReturnStatement()
+
+        self.__expect([Token.TOKT_RETURN])
+        self.__advance()
+
+        val = self.current  # TODO: Debe coger un valor, no un token
+        self.__advance()
+
+        ret.set_return_value(val)
+
+        self.__expect([Token.TOKT_SEMICOLON])
+        self.__advance()
+
+        return ret        
 
     def parse(self):
         proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk
