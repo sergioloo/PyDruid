@@ -9,7 +9,7 @@ class Method(Container):
         self.init   = init
         self.type   = type_ # Tipo de valor de retorno
         self.args   = args
-        self.block  = Block()
+        self.block  = Block(self)
     
     def __repr__(self):
         return f"[Method {self.init.id}]"

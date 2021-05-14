@@ -47,3 +47,5 @@ class Compiler:
         else: print(f'\x1b[1m· \x1b[mcompilation \x1b[1;31mfailed\x1b[m.')
 
         if clean: os.remove(c_source_fn)
+
+        return compilation_status

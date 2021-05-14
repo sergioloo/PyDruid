@@ -1,5 +1,9 @@
-class Block:
-    def __init__(self):
+from .container import Container
+
+
+class Block(Container):
+    def __init__(self, container):
+        super().__init__(container.id, container)
         self.block = []
     
     def add_statement(self, stt):

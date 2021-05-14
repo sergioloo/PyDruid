@@ -50,6 +50,7 @@ class Scanner:
         elif    value == 'class':       return Token(Token.TOKT_CLASS,      start, end)
         elif    value == 'static':      return Token(Token.TOKT_STATIC,     start, end)
         elif    value == 'final':       return Token(Token.TOKT_FINAL,      start, end)
+        elif    value == 'import':      return Token(Token.TOKT_IMPORT,     start, end)
         elif    value == 'return':      return Token(Token.TOKT_RETURN,     start, end)
         return                                 Token(Token.TOKT_ID,         start, end, value)
     
@@ -63,7 +64,6 @@ class Scanner:
             value += self.current
             self.__advance()
         
-        self.__advance()
         self.__advance()
 
         end = self.pos.copy()
@@ -93,6 +93,25 @@ class Scanner:
             start, end,
             value
         )
+    
+    def __on_cexpr(self):
+        value = ''
+        start = self.pos.copy()
+
+        self.__advance()
+        
+        if self.current != '[': Error("expecting '[' after '!'.", self.pos.copy())
+        self.__advance()
+
+        while self.current and self.current != ']':
+            value += self.current
+            self.__advance()
+        
+        self.__advance()
+
+        end = self.pos.copy()
+
+        return Token(Token.TOKT_CEXPR, start, end, value)
 
     # Método de escaneo    
     def scan(self):
@@ -103,6 +122,10 @@ class Scanner:
 
             elif self.current == '.':
                 result.append(Token(Token.TOKT_DOT, self.pos.copy()))
+                self.__advance()
+            
+            elif self.current == ',':
+                result.append(Token(Token.TOKT_COMMA, self.pos.copy()))
                 self.__advance()
 
             elif self.current == ';':
@@ -155,6 +178,7 @@ class Scanner:
             elif self.current in self.NUMBERS:      result.append(self.__on_number())
             elif self.current in self.START_DIGITS: result.append(self.__on_keyword())
             elif self.current == '"':               result.append(self.__on_string())
+            elif self.current == '!':               result.append(self.__on_cexpr())
             
             elif self.current == '/':
                 pos = self.pos.copy()

@@ -6,9 +6,11 @@ class Token:
     TOKT_PRIVATE    = 'private'
     TOKT_STATIC     = 'static'
     TOKT_FINAL      = 'final'
+    TOKT_IMPORT     = 'import'
     TOKT_RETURN     = 'return'
     TOKT_ID         = 'identifier'
     TOKT_DOT        = 'dot'
+    TOKT_COMMA      = 'comma'
     TOKT_SEMICOLON  = 'semicolon'
     TOKT_DEF        = 'definer'
     TOKT_LCBRACK    = 'left curly bracket'
@@ -23,6 +25,7 @@ class Token:
     TOKT_MULT       = 'multiplication'
     TOKT_DIV        = 'division'
     TOKT_POW        = 'power'
+    TOKT_CEXPR      = 'c expression'
     TOKT_EOF        = 'end of file'
 
     def __init__(self, type_, start, end=None, value=None):

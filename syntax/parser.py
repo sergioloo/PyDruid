@@ -1,8 +1,12 @@
+from .access_statement  import Access
 from .argument          import Argument
+from .atom              import Atom
 from .bin_op            import BinOp
 from .block             import Block
+from .c_expr            import CExpr
 from .class_            import Class
 from .factor            import Factor
+from .func_call         import FunctionCall
 from .initializer       import Initializer
 from .method            import Method
 from .package           import Package
@@ -86,19 +90,34 @@ class Parser:
                 args = self.__get_args()
                 container.add_method(self.__method(init, args, container))
     
-    def __get_block(self):
-        blk = Block()
+    def __get_block(self, container):
+        blk = Block(container)
 
         self.__expect([Token.TOKT_LCBRACK])
         self.__advance()
 
         while self.current and self.current.type != Token.TOKT_RCBRACK:
-            if self.current and self.current.type == Token.TOKT_RETURN: blk.add_statement(self.__return());
+            if   self.current.type == Token.TOKT_RETURN: blk.add_statement(self.__return(blk))
+            elif self.current.type in (Token.TOKT_ID, Token.TOKT_CEXPR):
+                blk.add_statement(self.__func_call(blk))
+                self.__expect([Token.TOKT_SEMICOLON])
+                self.__advance()
 
         self.__expect([Token.TOKT_RCBRACK])
         self.__advance()
 
         return blk
+    
+    def __import(self, container):
+        self.__expect([Token.TOKT_IMPORT])
+        self.__advance()
+
+        id_ = self.__get_id()
+
+        self.__expect([Token.TOKT_SEMICOLON])
+        self.__advance()
+
+        container.import_(id_)
 
     def __package(self, container):
         self.__expect([Token.TOKT_PACKAGE])
@@ -112,7 +131,11 @@ class Parser:
         pkg = Package(id_, container)
 
         while self.current and self.current.type != Token.TOKT_EOF:
-            self.__fill_container(pkg)
+            if self.current.type == Token.TOKT_IMPORT:
+                self.__import(pkg)
+            
+            else:
+                self.__fill_container(pkg)
 
         self.__expect([Token.TOKT_EOF])
         self.__advance()
@@ -136,7 +159,7 @@ class Parser:
     def __method(self, init, args, container):
         mthd = Method(init, init.type, args, container) # TODO: Ese None sustituye a args
 
-        blk = self.__get_block()
+        blk = self.__get_block(mthd)
         mthd.set_block(blk)
 
         return mthd
@@ -179,8 +202,8 @@ class Parser:
         
         return Initializer(id_, vb, static, final, type_)
     
-    def __return(self):
-        ret = ReturnStatement()
+    def __return(self, container):
+        ret = ReturnStatement(container)
 
         self.__expect([Token.TOKT_RETURN])
         self.__advance()
@@ -235,6 +258,53 @@ class Parser:
         self.__advance()
 
         return Factor(tok.value)
+    
+    def __func_call(self, container):
+        func = self.__access(container)
+        
+        if self.current and self.current.type == Token.TOKT_LPAREN:
+            self.__advance()
+
+            args = []
+
+            while self.current and self.current.type != Token.TOKT_RPAREN:
+                args.append(self.__func_call(container))
+                
+                if self.current and self.current.type == Token.TOKT_COMMA:
+                    self.__advance()
+            
+            self.__advance()
+            return FunctionCall(func, args)
+
+        return func
+    
+    def __access(self, container):
+        id_ = self.__atom(container)
+
+        if self.current and self.current.type == Token.TOKT_DOT:
+            self.__advance()
+
+            member = self.__atom(container)
+
+            return Access(id_, member, container)
+        
+        return id_
+
+    def __atom(self, container):
+        if self.current and self.current.type == Token.TOKT_CEXPR:
+            return self.__cexpr(container)
+
+        self.__expect([Token.TOKT_ID, Token.TOKT_INT, Token.TOKT_FLOAT, Token.TOKT_STRING])
+        tok = self.current
+        self.__advance()
+        return Atom(tok, container)
+    
+    def __cexpr(self, container):
+        self.__expect([Token.TOKT_CEXPR])
+        tok = self.current
+        self.__advance()
+
+        return CExpr(tok.value, container)
 
     def parse(self):
         proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk
