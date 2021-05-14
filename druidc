@@ -70,7 +70,10 @@ def compile_proj(name):
 
     sc      = Transpiler(ast, "kk").transpile()
 
-    Compiler(name, sc).compile(clean=False)
+    compiler    = Compiler(name, sc)
+    status      = compiler.compile(clean=False)
+
+    return (compiler.output, status)
 
 def init(proj_name: str):
     fld_name = proj_name.lower()
@@ -106,6 +109,16 @@ def init(proj_name: str):
 
     print("\x1b[1m· \x1b[m project \x1b[1;32msuccesfully \x1b[minitialized.")
 
+def run(name):
+    # Compilar
+    f = compile_proj(name)
+
+    # Comprobar que el archivo se puede lanzar
+    if f[1] != 0: Error("cannot launch the project because the compilation process went wrong.")
+
+    # Lanzar el ejecutable
+    os.system(f[0])
+
 def main(args):
     print("\x1b[1;32m·: \x1b[37mDruid \x1b[mCompiler \x1b[1;32m:· \x1b[m")
 
@@ -120,6 +133,13 @@ def main(args):
     elif option == 'init':
         if len(args) < 3: Error("the 'init' option must take a project name.")
         init(args[2])
+    
+    elif option == 'run':
+        if len(args) < 3: Error("the 'run' option must take a project name.")
+        run(args[2])
+    
+    else:
+        Error("invalid option. use 'help' to display a list of available options.")
         
 
 if __name__ == '__main__':
