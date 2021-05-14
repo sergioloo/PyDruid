@@ -39,7 +39,13 @@ $ ./druidc help
 ```
 
 ## ![](../assets/worm.svg) The __run__ option
-This option does the same than ```compile```, but when compilation ends, it runs the generated program. Of course, if the compilation goes wrong, it won't launch anything and will print an error message, like this one:
+This option does the same than ```compile```, but when compilation ends, it runs the generated program. 
+
+```
+$ ./druidc run TestProject
+```
+
+Of course, if the compilation goes wrong, it won't launch anything and will print an error message, like this one:
 
 <div align="center">
     <img src="../assets/run_error.png">
