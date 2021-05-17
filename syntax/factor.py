@@ -2,9 +2,12 @@ from .statement import Statement
 
 
 class Factor(Statement):
-    def __init__(self, value):
-        super().__init__(self.ST_FACTOR)
-        self.value = value
+    def __init__(self, **kwargs):
+        Statement.__init__(self, **kwargs)
 
-    def to_c(self):
+        self.value = kwargs['value'] if 'value' in kwargs else None
+
+    def set_value(self, val): self.value = val
+
+    def to_string(self):
         return self.value

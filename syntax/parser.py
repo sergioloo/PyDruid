@@ -1,17 +1,12 @@
-from .access_statement  import Access
-from .argument          import Argument
-from .atom              import Atom
+from .ast               import AST
 from .bin_op            import BinOp
-from .block             import Block
-from .c_expr            import CExpr
 from .class_            import Class
+from .container         import Container
 from .factor            import Factor
-from .func_call         import FunctionCall
-from .initializer       import Initializer
 from .method            import Method
 from .package           import Package
-from .project           import Project
 from .return_statement  import ReturnStatement
+from .symbol            import Symbol
 from text               import Token
 from utils              import Error
 
@@ -30,286 +25,209 @@ class Parser:
 
     def __expect(self, types):
         if not self.current or self.current.type not in types:
-            expected = types[0]
+                expected = types[0]
 
-            for i, t in enumerate(types):
-                if    i == 0:               continue
-                elif  i == len(types) - 1:  expected += f' or {t}'
-                else:                       expected += f', {t}'
-            
-            if not self.current:                Error(f"expecting {expected} and got nothing.")
-            if self.current.type not in types:  Error(f"expecting {expected} and got {self.current.type}", tok=self.current)
+                for i, t in enumerate(types):
+                    if    i == 0:               continue
+                    elif  i == len(types) - 1:  expected += f' or {t}'
+                    else:                       expected += f', {t}'
+                
+                if not self.current:                Error(f"expecting {expected} and got nothing.")
+                if self.current.type not in types:  Error(f"expecting {expected} and got {self.current.type}", tok=self.current)
     
-    def __get_id(self):
-        self.__expect([Token.TOKT_ID])
-        
+    def __is_token_type(self, types):
+        return self.current and self.current.type in types
+    
+    def __is_not_token_type(self, types):
+        return self.current and self.current.type not in types
+    
+    def __get_id(self) -> str:
         toks = []
-        while self.current and self.current.type == Token.TOKT_ID:
+
+        while self.__is_token_type([Token.TOKT_ID]):
             toks.append(self.current)
             self.__advance()
 
-            if self.current and self.current.type == Token.TOKT_DOT:
+            if self.__is_token_type([Token.TOKT_DOT]):
                 toks.append(self.current)
                 self.__advance()
         
         result = ''
 
-        for tok in toks:
-            if tok.type == Token.TOKT_DOT:  result += '_'
-            else:                           result += tok.value
-        
+        for tok in toks: result += tok.value if tok.type == Token.TOKT_ID else '_'
+
         return result
     
-    def __get_args(self):
-        args = []
+    def __fill_container(self, container: Container, init_mark=Token.TOKT_LCBRACK, final_mark=Token.TOKT_RCBRACK):
+        if init_mark:
+            self.__expect([init_mark])
+            self.__advance()
 
-        self.__expect([Token.TOKT_LPAREN])
-        self.__advance()
-
-        while self.current and self.current.type != Token.TOKT_RPAREN:
+        while self.__is_not_token_type([final_mark]):
+            # Obtener parámetros
             id_ = self.__get_id()
 
             self.__expect([Token.TOKT_DEF])
             self.__advance()
 
-            type_ = self.__get_id()
+            vb = Symbol.VB_PROTECTED
+            if self.__is_token_type([Token.TOKT_PUBLIC, Token.TOKT_PROTECTED, Token.TOKT_PRIVATE]):
+                if   self.current.type == Token.TOKT_PUBLIC:    vb = Symbol.VB_PUBLIC
+                elif self.current.type == Token.TOKT_PROTECTED: vb = Symbol.VB_PROTECTED
+                elif self.current.type == Token.TOKT_PRIVATE:   vb = Symbol.VB_PRIVATE
 
-            args.append(Argument(id_, type_))
-
-        self.__expect([Token.TOKT_RPAREN])
-        self.__advance()
-
-        return args
-    
-    def __fill_container(self, container):
-        init = self.__initializer()
-
-        if init.type == Initializer.ST_CLASS: container.add_class(self.__class(init, container))
-        else:
-            if self.current and self.current.type == Token.TOKT_LPAREN:
-                args = self.__get_args()
-                container.add_method(self.__method(init, args, container))
-    
-    def __get_block(self, container):
-        blk = Block(container)
-
-        self.__expect([Token.TOKT_LCBRACK])
-        self.__advance()
-
-        while self.current and self.current.type != Token.TOKT_RCBRACK:
-            if   self.current.type == Token.TOKT_RETURN: blk.add_statement(self.__return(blk))
-            elif self.current.type in (Token.TOKT_ID, Token.TOKT_CEXPR):
-                blk.add_statement(self.__func_call(blk))
-                self.__expect([Token.TOKT_SEMICOLON])
+                self.__advance()
+            
+            static = False
+            if self.__is_token_type([Token.TOKT_STATIC]):
+                static = True
                 self.__advance()
 
-        self.__expect([Token.TOKT_RCBRACK])
-        self.__advance()
+            final = False
+            if self.__is_token_type([Token.TOKT_FINAL]):
+                final = True
+                self.__advance()
 
-        return blk
-    
-    def __import(self, container):
-        self.__expect([Token.TOKT_IMPORT])
-        self.__advance()
-
-        id_ = self.__get_id()
-
-        self.__expect([Token.TOKT_SEMICOLON])
-        self.__advance()
-
-        container.import_(id_)
-
-    def __package(self, container):
-        self.__expect([Token.TOKT_PACKAGE])
-        self.__advance()
-
-        id_ = self.__get_id()
-
-        self.__expect([Token.TOKT_SEMICOLON])
-        self.__advance()
-
-        pkg = Package(id_, container)
-
-        while self.current and self.current.type != Token.TOKT_EOF:
-            if self.current.type == Token.TOKT_IMPORT:
-                self.__import(pkg)
+            self.__expect([Token.TOKT_CLASS, Token.TOKT_ID])
             
-            else:
-                self.__fill_container(pkg)
+            type_ = None
+            if self.current.type == Token.TOKT_ID: type_ = self.__get_id()
+            else: 
+                type_ = self.current
+                self.__advance()
 
-        self.__expect([Token.TOKT_EOF])
+            # Añadir elemento al contenedor
+            if isinstance(type_, Token) and type_.type == Token.TOKT_CLASS: container.add_class(self.__class(id_, vb, static, container))
+            else: container.add_method(self.__method(id_, type_, container, vb, static, final))
+
         self.__advance()
-
-        return pkg
     
-    def __class(self, init, parent):
-        class_ = Class(init, parent)
+    def __factor(self, parent):
+        self.__expect([Token.TOKT_INT, Token.TOKT_FLOAT, Token.TOKT_ID])
 
-        self.__expect([Token.TOKT_LCBRACK])
+        fact = Factor(value=self.current.value, parent=parent)
         self.__advance()
 
-        while self.current and self.current.type != Token.TOKT_RCBRACK:
-            self.__fill_container(class_)
-
-        self.__expect([Token.TOKT_RCBRACK])
-        self.__advance()
-
-        return class_
-
-    def __method(self, init, args, container):
-        mthd = Method(init, init.type, args, container) # TODO: Ese None sustituye a args
-
-        blk = self.__get_block(mthd)
-        mthd.set_block(blk)
-
-        return mthd
-
-    def __initializer(self):
-        id_ = self.__get_id()
-
-        self.__expect([Token.TOKT_DEF])
-        self.__advance()
-
-        vb = Initializer.VB_PROTECTED
-
-        if self.current and self.current.type in (Token.TOKT_PUBLIC, Token.TOKT_PROTECTED, Token.TOKT_PRIVATE):
-            if      self.current.type == Token.TOKT_PUBLIC:     vb = Initializer.VB_PUBLIC
-            elif    self.current.type == Token.TOKT_PROTECTED:  vb = Initializer.VB_PROTECTED
-            elif    self.current.type == Token.TOKT_PRIVATE:    vb = Initializer.VB_PRIVATE
-
-            self.__advance()
-        
-        static = False
-        
-        if self.current and self.current.type == Token.TOKT_STATIC:
-            static = True
-            self.__advance()
-        
-        final = False
-        if self.current and self.current.type == Token.TOKT_FINAL:
-            final = True
-
-        type_ = None
-
-        self.__expect([Token.TOKT_CLASS, Token.TOKT_ID])
-
-        if self.current.type == Token.TOKT_ID:
-            type_ = self.__get_id()
-
-        elif self.current.type == Token.TOKT_CLASS:  
-            type_ = Initializer.ST_CLASS
-            self.__advance()
-        
-        return Initializer(id_, vb, static, final, type_)
+        return fact
     
-    def __return(self, container):
-        ret = ReturnStatement(container)
+    def __term(self, parent):
+        left = self.__factor(parent)
+        
+        while self.__is_token_type([Token.TOKT_MULT, Token.TOKT_DIV, Token.TOKT_POW]):
+            op = None
+            if   self.current.type == Token.TOKT_MULT:  op = BinOp.OP_MULT
+            elif self.current.type == Token.TOKT_DIV:   op = BinOp.OP_DIV
+            elif self.current.type == Token.TOKT_POW:   op = BinOp.OP_POW
+            self.__advance()
+
+            right = self.__term(parent)
+
+            old_left = left
+            left = BinOp(left=left, op=op, right=right, parent=parent)
+        
+        return left
+    
+    def __expression(self, parent):
+        left = self.__term(parent)
+        
+        while self.__is_token_type([Token.TOKT_PLUS, Token.TOKT_MINUS]):
+            op = None
+            if   self.current.type == Token.TOKT_PLUS:  op = BinOp.OP_ADD
+            elif self.current.type == Token.TOKT_MINUS: op = BinOp.OP_SUBT
+            self.__advance()
+
+            right = self.__expression(parent)
+
+            old_left = left
+            left = BinOp(left=left, op=op, right=right, parent=parent)
+        
+        return left
+    
+    def __return(self, block):
+        rs = ReturnStatement(parent=block)
 
         self.__expect([Token.TOKT_RETURN])
         self.__advance()
 
-        val = self.__expression()
+        val = self.__expression(rs)
+        rs.set_return_value(val)
 
-        ret.set_return_value(val)
+        return rs
+    
+    def __method(self, id_, type_, parent,
+        visibility   = Symbol.VB_PROTECTED,
+        static: bool = False,
+        final:  bool = False
+    ):
+        mthd = Method(
+            id          = id_,
+            type        = type_,
+            visibility  = visibility,
+            static      = static,
+            final       = final,
+            parent      = parent
+        )
+
+        self.__expect([Token.TOKT_LPAREN])
+        self.__advance()
+
+        self.__expect([Token.TOKT_RPAREN])
+        self.__advance()
+
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        while self.__is_not_token_type([Token.TOKT_RCBRACK]):
+            if self.current.type == Token.TOKT_RETURN: mthd.add_statement(self.__return(mthd))
+
+            self.__expect([Token.TOKT_SEMICOLON, Token.TOKT_RCBRACK])
+            if self.current.type == Token.TOKT_SEMICOLON: self.__advance()
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+
+        return mthd
+    
+    def __class(
+        self,
+        id_: str,
+        vb: str,
+        static: bool,
+        parent_scope
+    ):
+        cls_ = Class(
+            id          = id_,
+            visibility  = vb,
+            static      = static,
+            parent      = parent_scope
+        )
+
+        self.__fill_container(cls_)
+
+        return cls_
+    
+    def __package(self, root_scope):
+        self.__expect([Token.TOKT_PACKAGE])
+        self.__advance()
+
+        id_: str = self.__get_id()
 
         self.__expect([Token.TOKT_SEMICOLON])
         self.__advance()
 
-        return ret
+        pkg = Package(
+            id      = id_,
+            parent  = root_scope
+        )
 
-    def __term(self):
-        left = self.__factor()
+        self.__fill_container(pkg, init_mark=None, final_mark=Token.TOKT_EOF)
 
-        while self.current and self.current.type in (Token.TOKT_MULT, Token.TOKT_DIV, Token.TOKT_POW):
-            op = None
-
-            if   self.current.type == Token.TOKT_MULT: op = BinOp.OP_MULT
-            elif self.current.type == Token.TOKT_DIV:  op = BinOp.OP_DIV
-            elif self.current.type == Token.TOKT_POW:  op = BinOp.OP_POW
-
-            self.__advance()
-
-            right = self.__term()
-
-            old_left = left
-            left = BinOp(old_left, op, right)
+        return pkg
         
-        return left
-    
-    def __expression(self):
-        left = self.__term()
-
-        while self.current and self.current.type in (Token.TOKT_PLUS, Token.TOKT_MINUS):
-            op = None
-
-            if   self.current.type == Token.TOKT_PLUS:  op = BinOp.OP_ADDITION
-            elif self.current.type == Token.TOKT_MINUS: op = BinOp.OP_SUBT
-
-            right = self.__expression()
-
-            old_left = left
-            left = BinOp(old_left, op, right)
-        
-        return left
-    
-    def __factor(self):
-        self.__expect([Token.TOKT_INT, Token.TOKT_FLOAT])
-        tok = self.current
-        self.__advance()
-
-        return Factor(tok.value)
-    
-    def __func_call(self, container):
-        func = self.__access(container)
-        
-        if self.current and self.current.type == Token.TOKT_LPAREN:
-            self.__advance()
-
-            args = []
-
-            while self.current and self.current.type != Token.TOKT_RPAREN:
-                args.append(self.__func_call(container))
-                
-                if self.current and self.current.type == Token.TOKT_COMMA:
-                    self.__advance()
-            
-            self.__advance()
-            return FunctionCall(func, args)
-
-        return func
-    
-    def __access(self, container):
-        id_ = self.__atom(container)
-
-        if self.current and self.current.type == Token.TOKT_DOT:
-            self.__advance()
-
-            member = self.__atom(container)
-
-            return Access(id_, member, container)
-        
-        return id_
-
-    def __atom(self, container):
-        if self.current and self.current.type == Token.TOKT_CEXPR:
-            return self.__cexpr(container)
-
-        self.__expect([Token.TOKT_ID, Token.TOKT_INT, Token.TOKT_FLOAT, Token.TOKT_STRING])
-        tok = self.current
-        self.__advance()
-        return Atom(tok, container)
-    
-    def __cexpr(self, container):
-        self.__expect([Token.TOKT_CEXPR])
-        tok = self.current
-        self.__advance()
-
-        return CExpr(tok.value, container)
-
     def parse(self):
-        proj = Project("kk") # TODO: Evidentemente, el proyecto no se llama kk
+        ast = AST()
 
         while self.current:
-            proj.add_package(self.__package(proj))
+            ast.add_package(self.__package(ast))
 
-        return proj
+        return ast

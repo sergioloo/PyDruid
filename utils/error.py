@@ -28,7 +28,7 @@ class Error:
     
     def throw(self):
         moment = datetime.now().strftime('%d/%m/%y %H:%M:%S')
-        print(f"\x1b[1m[ \x1b[m{moment} \x1b[1;31merror \x1b[37m]: \x1b[m{self.description}")
+        print(f"\x1b[1m[ \x1b[m{moment} \x1b[1;{self.COLOR}m{self.TYPE} \x1b[37m]: \x1b[m{self.description}")
 
         if self.position:
             print(f"\x1b[1mlocated at \x1b[m{self.position.filename} {self.position.line}:{self.position.column}")

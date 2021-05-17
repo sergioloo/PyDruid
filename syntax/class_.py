@@ -1,54 +1,58 @@
+from .symbol import Symbol
 from .container import Container
 
 
 class Class(Container):
-    def __init__(self, init, parent):
-        super().__init__(init.id, parent)
-        self.init = init
+    TM_CONSTRUCTOR      = 'constructor'
 
-    def __repr__(self):
-        return f"[Class {self.init.id}]"
+    def __init__(self, **kwargs):
+        Container.__init__(self, **kwargs)
     
-    def make_c_constructor(self):
-        full_id = self.get_full_id()
+    def to_string(self, mode=Symbol.TM_DEFINITION):
+        if mode == self.TM_PROTOTYPE:
+            full_id = self.get_full_id()
+            return f'typedef struct _{full_id} {full_id}; \n'
 
-        result = f'{full_id}* _{full_id}_init() ' + '{\n'
+        elif mode == self.TM_DEFINITION:
+            result = f'// Class {self.id}\n'
+            full_id = self.get_full_id()
 
-        result += f'\t{full_id}* self = _new_instance({full_id});\n'
+            # Añadir los prototipos de la clase
+            result += self.to_string(Symbol.TM_PROTOTYPE)
+            result += f'{full_id} *_{full_id}_init();\n'
 
-        for method in self.methods:
-            result += f'\tself -> {method.id} = &{method.get_full_id()};\n'
+            for mthd in self.methods:
+                result += mthd.to_string(Symbol.TM_PROTOTYPE)
 
-        result += '\treturn self;\n'
+            result += '\n'
 
-        result += '}\n'
+            # Generar la estructura de la clase
+            result += f'struct _{full_id} ' + '{\n'
 
-        return result
+            for mthd in self.methods:
+                result += f'\t{mthd.type} (*{mthd.id}) (); \n'
+            
+            result += '};\n\n'
 
-    def to_c(self):
-        full_id = self.get_full_id()
+            # Generar las definiciones de los métodos
+            result += self.to_string(self.TM_CONSTRUCTOR) + '\n'
 
-        result = f'// class {self.id}\n'
-
-        result += f'typedef struct _{full_id} {full_id};\n'
-
-        result += f'struct _{full_id} ' + '{\n'
-
-        for method in self.methods:
-            result += f'\t{method.get_pointer()};\n'
-
-        result += '};\n'
-
-        result += '\n'
-
-        for method in self.methods:
-            result += method.get_prototype() + ';\n'
-
-        result += '\n'
-
-        result += self.make_c_constructor() + '\n'
+            for mthd in self.methods:
+                result += mthd.to_string(Symbol.TM_DEFINITION)
+            
+            return result
         
-        for method in self.methods:
-            result += method.to_c()
+        elif mode == self.TM_CONSTRUCTOR:
+            full_id = self.get_full_id()
+            result = f'{full_id} *_{full_id}_init() ' + '{\n'
 
-        return result
+            result += f'\t{full_id} *self = _new_instance({full_id});\n\n'
+
+            for mthd in self.methods:
+                result += f'\tself -> {mthd.id} = &{mthd.get_full_id()};\n'
+
+            result += '\n\treturn self;\n'
+
+            result += '}\n'
+
+            return result

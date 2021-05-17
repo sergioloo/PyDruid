@@ -1,25 +1,19 @@
-from .container     import Container
+from .container import Container
+from .symbol    import Symbol
 
 
 class Package(Container):
-    def __init__(self, id_, parent):
-        super().__init__(id_, parent)
+    def __init__(self, **kwargs):
+        Container.__init__(self, **kwargs)
 
-        self.id         = id_
-        self.classes    = []
-        self.methods    = []
-
-    def __repr__(self):
-        return f"""
-        [Package {self.id}
-            Classes: {self.classes},
-            Methods: {self.methods}
-        ]
-"""
+        del self.visibility
+        del self.static
+        del self.final
     
-    def to_c(self):
-        result = f'// package {self.id}\n\n'
-        for class_ in self.classes:
-            result += class_.to_c()
+    def to_string(self, mode=None) -> str:
+        result = f'// Package {self.id}\n\n'
+
+        for cls_ in self.classes:
+            result += cls_.to_string(Symbol.TM_DEFINITION)
 
         return result

@@ -65,6 +65,7 @@ class Transpiler:
     
     def __create_main_function(self):
         main_class = self.__find_main_class()
+        # main_class = '_cambia_esto_cuando_funcione_' # TODO: xd
 
         result = 'int main() {\n'
 
@@ -80,8 +81,8 @@ class Transpiler:
 
         # Comprobar nombre del proyecto
         if not self.proj_config.get('name'): Error("field 'name' missing in 'project.json'.")
-        if self.proj_config['name'] == self.ast.id: self.proj_name = self.proj_config['name']
-        else:                                       Error('the project name does not match with the project settings name.')
+        # if self.proj_config['name'] == self.ast.id: self.proj_name = self.proj_config['name']
+        # else:                                       Error('the project name does not match with the project settings name.')
 
         # Comprobar y guardar el nombre del autor
         if not self.proj_config.get('author'): Error("field 'author' missing in 'project.json'")
@@ -101,7 +102,7 @@ class Transpiler:
         code = ''
 
         for pkg in self.ast.packages:
-            code += pkg.to_c()
+            code += pkg.to_string()
 
         result += code + '\n'
 
