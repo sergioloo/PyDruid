@@ -1,17 +1,14 @@
+from .block     import Block
 from .symbol    import Symbol
 from utils      import Error
 
 
-class Method(Symbol):
+class Method(Symbol, Block):
     def __init__(self, **kwargs):
         Symbol.__init__(self, **kwargs)
+        Block.__init__(self, **kwargs)
 
         self.type = kwargs['type'] if 'type' in kwargs else Error("return type for method not specified.")
-
-        self.statements = []
-    
-    def add_statement(self, stt):
-        self.statements.append(stt)
     
     def to_string(self, mode):
         full_id = self.get_full_id()

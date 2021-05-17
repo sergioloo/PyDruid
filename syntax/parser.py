@@ -102,6 +102,19 @@ class Parser:
 
         self.__advance()
     
+    def __fill_block(self, block):
+        self.__expect([Token.TOKT_LCBRACK])
+        self.__advance()
+
+        while self.__is_not_token_type([Token.TOKT_RCBRACK]):
+            if self.current.type == Token.TOKT_RETURN: block.add_statement(self.__return(block))
+
+            self.__expect([Token.TOKT_SEMICOLON, Token.TOKT_RCBRACK])
+            if self.current.type == Token.TOKT_SEMICOLON: self.__advance()
+
+        self.__expect([Token.TOKT_RCBRACK])
+        self.__advance()
+    
     def __factor(self, parent):
         self.__expect([Token.TOKT_INT, Token.TOKT_FLOAT, Token.TOKT_ID])
 
@@ -175,16 +188,7 @@ class Parser:
         self.__advance()
 
         self.__expect([Token.TOKT_LCBRACK])
-        self.__advance()
-
-        while self.__is_not_token_type([Token.TOKT_RCBRACK]):
-            if self.current.type == Token.TOKT_RETURN: mthd.add_statement(self.__return(mthd))
-
-            self.__expect([Token.TOKT_SEMICOLON, Token.TOKT_RCBRACK])
-            if self.current.type == Token.TOKT_SEMICOLON: self.__advance()
-
-        self.__expect([Token.TOKT_RCBRACK])
-        self.__advance()
+        self.__fill_block(mthd)
 
         return mthd
     

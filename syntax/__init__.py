@@ -1,5 +1,6 @@
 from .ast               import AST
 from .bin_op            import BinOp
+from .block             import Block
 from .class_            import Class
 from .container         import Container
 from .factor            import Factor
