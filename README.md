@@ -31,11 +31,10 @@ Well... the Druid source code is being written in Druid (as paradoxically as it 
 Simply you don't install it. You need just a requeriment to run it, which is Python (and preferably running on Linux). The compiler is called by running the file ```druidc```, in the root directory of the git repository.
 
 ## ![](assets/worm.svg) Compile
-If you have your Druid source code done, you need pass all the files to the compiler with the ```compile``` option. There's a JSON file containing the compiler default properties in the same path of the git repo, so you can modify the C compiler and its flags. By default, it uses GCC with no flags.
+Druid doesn't compile single Druid files. You need to pass a project name to the compiler, and it will look for a project index wich will tell the project name, the project author, the project files, the compiler and its flags, etc...
 ```
 $ ./druidc compile example.druid
 ```
-Of course, you need to change ```example.druid``` by all your files. All the dependencies __must__ be satisfied, because the compiler will crash with an error if any dependency is broken, so __make sure__ you import __all__ the required Druid files.
 
 ## ![](assets/worm.svg) Other options
 The compiler can do more things, such as initializing projects, for example. It basically does everything that the actual Druid compiler does, so if you want to get a list with all the available options, just use the option ```help``` or check the [options.md](docs/options.md) file.
