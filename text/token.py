@@ -36,3 +36,5 @@ class Token:
     
     def __repr__(self):
         return f'[{self.type}: {self.value}]' if self.value else f'[{self.type}]'
+    
+    def is_type(self, type_): return self.type == type_

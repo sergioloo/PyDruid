@@ -40,8 +40,8 @@ def tokenize(files):
     
     return toks
 
-def parse(toks):
-    return Parser(toks).parse()
+def parse(name, toks):
+    return Parser(name, toks).parse()
 
 def transpile(ast):
     return Transpiler(ast, "kk").transpile() # TODO: el proyecto sigue sin llamarse 'kk'
@@ -66,7 +66,7 @@ def compile_proj(name):
     
     # Compilar
     toks    = tokenize(files)
-    ast     = parse(toks)
+    ast     = parse(name, toks)
 
     sc      = Transpiler(ast, "kk").transpile()
 

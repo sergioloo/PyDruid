@@ -1,19 +1,34 @@
-from .node import Node
+from .code_node import CodeNode
+from .package import Package
 
 
-class AST(Node):
-    def __init__(self, **kwargs):
-        Node.__init__(self, **kwargs)
+class AST(CodeNode):
+    """
+    This is the base of the AST. It's like the log of the tree, that holds all the
+    branches. Okay. So this can hold only two things, which are whole packages and
+    directives for the C preprocessor.
 
-        self.packages = []
+    To declare a directive, you must use the % character. For example:
+    ```
+    %include <stdio.h>
+    ```
 
-    def add_package(self, pkg):
-        self.packages.append(pkg)
+    And the rest, just are packages wich begin with the ```package``` keyword and end up
+    with an END OF FILE.
+    """
+
+    def __init__(self, name):
+        super().__init__(parent=None)
+
+        self.name = name
+        self.directives = []
+        self.packages   = []
     
-    def to_string(self) -> str:
-        result = ''
-
+    def add_directive(self, directive):     self.directives.append(directive)
+    def open_package(self, name):
         for pkg in self.packages:
-            result += pkg.to_string()
-
-        return result
+            if pkg.name == name: return pkg
+        
+        pkg = Package(name=name, parent=self)
+        self.packages.append(pkg)
+        return pkg

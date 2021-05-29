@@ -1,32 +1,23 @@
-from .node import Node
+from .accessibility import Accessibility
+from .code_node import CodeNode
 
 
-class Symbol(Node):
-    VB_PUBLIC       = 'public'
-    VB_PROTECTED    = 'protected'
-    VB_PRIVATE      = 'private'
+class Symbol(CodeNode):
+    """
+    Per se, any node of the AST can be a Symbol. When you open VSCode, there's a lap
+    at the bottom left which is called "outline". That lap contains all the symbols
+    defined inside a file.
+    So every definition is a symbol. A definition of a class, of a macro, of a method...
+    Pretty much every definition.
+    """
 
-    TM_PROTOTYPE    = 'prototype'
-    TM_DEFINITION   = 'definition'
+    def __init__(
+        self, 
+        name, 
+        accessibility=Accessibility.public(), 
+        **kwargs
+    ):
+        super().__init__(**kwargs)
 
-    def __init__(self, **kwargs):
-        Node.__init__(self, **kwargs)
-
-        self.id         = kwargs['id']          if 'id'         in kwargs else ''
-
-        self.visibility = kwargs['visibility']  if 'visibility' in kwargs else self.VB_PROTECTED
-        self.static     = kwargs['static']      if 'static'     in kwargs else False
-        self.final      = kwargs['final']       if 'final'      in kwargs else False
-    
-    def to_string(self, mode):
-        pass
-    
-    def get_full_id(self) -> str:
-        result = self.id
-
-        parent = self.parent
-        while parent and isinstance(parent, Symbol):
-            result = f'{parent.id}_{result}'
-            parent = parent.parent
-        
-        return result
+        self.name: str                      = name          # This is the name of the symbol as string
+        self.accessibility: Accessibility   = accessibility # Accessibility to the symbol from outer scopes
