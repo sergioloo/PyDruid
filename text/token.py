@@ -1,6 +1,10 @@
 class Token:
     TOKT_PACKAGE    = 'package'
     TOKT_CLASS      = 'class'
+    TOKT_STRUCT     = 'struct'
+    TOKT_ENUM       = 'enum'
+    TOKT_FUNCTION   = 'function'
+    TOKT_MACRO      = 'macro'
     TOKT_PUBLIC     = 'public'
     TOKT_PROTECTED  = 'protected'
     TOKT_PRIVATE    = 'private'

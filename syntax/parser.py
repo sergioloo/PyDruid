@@ -1,3 +1,4 @@
+from .abstract      import *
 from .nodes         import *
 from text           import Token
 from utils          import Error
@@ -60,18 +61,52 @@ class Parser:
         # NOTE. Para ser implementado. No es de mis mayores preocupaciones.
 
         if self.is_token_type([Token.TOKT_SEMICOLON]): self.next()
+    
+    def fill_definition_holder(self, dh: DefinitionHolder, end_tok=Token.TOKT_RCBRACK):
+        while self.is_not_token_type([end_tok]):
+            self.expect([
+                Token.TOKT_CLASS, Token.TOKT_STRUCT, Token.TOKT_ENUM, Token.TOKT_FUNCTION, Token.TOKT_MACRO
+            ])
+            type_ = self.current.type
+            self.next()
+
+            name = self.get_id()
+
+            if      type_ == Token.TOKT_CLASS:      self.class_(dh, name)
+            elif    type_ == Token.TOKT_FUNCTION:   self.function(dh, name)
+            else:   self.next()
+        
+        self.next()
+    
+    def function(self, dh: DefinitionHolder, name):
+        func = Function.new(dh, name)
+
+        # get arguments
+        self.expect_and_continue([Token.TOKT_LPAREN])
+        while self.is_not_token_type([Token.TOKT_RPAREN]):
+            self.next()
+        
+        self.next()
+
+        self.expect_and_continue([Token.TOKT_LCBRACK])
+        while self.is_not_token_type([Token.TOKT_RCBRACK]):
+            self.next()
+        
+        self.next()
+        
+    def class_(self, dh: DefinitionHolder, name):
+        cls_ = Class.new(dh, name)
+
+        self.expect_and_continue([Token.TOKT_LCBRACK])
+        self.fill_definition_holder(cls_)
 
     def package(self, ast: AST):
         self.expect_and_continue([Token.TOKT_PACKAGE])
         name = self.get_id()
         
         pkg: Package = ast.get_package(name)
-
-        while self.is_not_token_type([Token.TOKT_EOF]):
-            pass
+        self.fill_definition_holder(pkg, end_tok=Token.TOKT_EOF)
             
-        self.next()
-
     def parse(self):
         ast = AST(self.name)
 
