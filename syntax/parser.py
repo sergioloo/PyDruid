@@ -57,22 +57,27 @@ class Parser:
         return result
     
     def semicolon(self):
+        # NOTE. Para ser implementado. No es de mis mayores preocupaciones.
+
         if self.is_token_type([Token.TOKT_SEMICOLON]): self.next()
 
     def package(self, ast: AST):
         self.expect_and_continue([Token.TOKT_PACKAGE])
         name = self.get_id()
-        pkg: Package = ast.open_package(name)
+        
+        pkg: Package = ast.get_package(name)
 
         while self.is_not_token_type([Token.TOKT_EOF]):
-            self.next()
-        
+            pass
+            
         self.next()
-    
+
     def parse(self):
         ast = AST(self.name)
 
         while self.current:
             self.package(ast)
+        
+        print(ast.packages)
 
         return ast
