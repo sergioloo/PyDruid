@@ -50,16 +50,24 @@ class Transpiler:
         result += 'typedef unsigned int word;\n'
 
         return result
+    
+    def __get_prototypes(self):
+        result = ''
+
+        for pkg in self.ast.packages:
+            result += pkg.get_prototype()
+
+        return result
 
     def __find_main_class(self):
         for pkg in self.ast.packages:
-            for method in pkg.methods:
-                if method.id == 'main':
-                    return method.parent.get_full_id()
+            for func in pkg.funcs:
+                if func.id == 'main':
+                    return func.parent.get_full_id()
 
             for class_ in pkg.classes:
-                for method in class_.methods:
-                    return method.parent.get_full_id()
+                for func in class_.funcs:
+                    return func.parent.get_full_id()
             
         Error("couldn't find the main class.")
     
@@ -69,8 +77,9 @@ class Transpiler:
 
         result = 'int main() {\n'
 
-        result += f'\t{main_class} *main_class = _{main_class}_init();\n'
-        result += f'\treturn main_class -> main();\n'
+        result += f'\t{main_class} main_class = _{main_class}_new();\n'
+        result += f'\tmain_class -> main();\n'
+        result += f'\treturn 0;\n'
 
         result += '}\n'
 
@@ -99,7 +108,10 @@ class Transpiler:
 
         result = f'{init_comment}\n{includes}\n{types}\n'
 
-        code = ''
+        code = '// Druid object prototype definitions \n'
+
+        code += self.__get_prototypes()
+        code += '\n'
 
         for pkg in self.ast.packages:
             code += pkg.to_string()

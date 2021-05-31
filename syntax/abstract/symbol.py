@@ -9,6 +9,8 @@ class Symbol(CodeNode):
         self.name       = name
         self.visibility = visibility
     
+    def get_prototype(self) -> str: return ''
+    
     def get_full_id(self) -> str:
         parent = self.parent
         result = self.name

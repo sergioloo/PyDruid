@@ -113,6 +113,4 @@ class Parser:
         while self.current:
             self.package(ast)
         
-        print(ast.packages)
-
         return ast

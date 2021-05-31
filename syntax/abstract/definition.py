@@ -13,4 +13,5 @@ class Definition(CodeNode):
         
         obj_ = obj(name=name, parent=dh)
         ls.append(obj_)
+        dh.definitions.append(obj_)
         return obj_
