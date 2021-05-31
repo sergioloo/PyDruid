@@ -74,7 +74,27 @@ class Parser:
 
             if      type_ == Token.TOKT_CLASS:      self.class_(dh, name)
             elif    type_ == Token.TOKT_FUNCTION:   self.function(dh, name)
+            elif    type_ == Token.TOKT_MACRO:      self.macro(dh, name)
             else:   self.next()
+        
+        self.next()
+    
+    def macro(self, dh: DefinitionHolder, name):
+        macro = Macro.new(dh, name)
+
+        self.expect_and_continue([Token.TOKT_LPAREN])
+        while self.is_not_token_type([Token.TOKT_RPAREN]):
+            self.expect([Token.TOKT_ID])
+            macro.add_arg(self.current.value)
+            self.next()
+
+            if self.is_token_type([Token.TOKT_COMMA]): self.next()
+        
+        self.next()
+
+        self.expect_and_continue([Token.TOKT_LCBRACK])
+        while self.is_not_token_type([Token.TOKT_RCBRACK]):
+            self.next()
         
         self.next()
     
